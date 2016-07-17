@@ -1,3 +1,113 @@
+var Collisions = {};
+
+Collisions.circle = {
+    contains: {}
+};
+
+Collisions.aabb = {
+    contains: {}
+};
+
+Collisions.circle.circle = function (a, b) {
+    var distance = dist(a, b);
+    return distance <= a.radius + b.radius;
+};
+
+Collisions.circle.aabb = function (circle, aabb) {
+    return Collisions.aabb.circle(aabb, circle);
+};
+
+Collisions.circle.contains.point = function (circle, point) {
+    var distance = dist(circle, point);
+    return distance <= circle.radius;
+};
+
+Collisions.aabb.aabb = function (a, b) {
+    return a.x < b.x + b.width &&
+        a.x + a.width > b.x &&
+        a.y < b.y + b.height &&
+        a.y + a.height > b.y;
+};
+
+Collisions.aabb.circle = function (aabb, circle) {
+    var rects = [
+        { x: aabb.x - circle.radius, y: aabb.y,
+            width: aabb.width + (circle.radius * 2), height: aabb.height },
+        { x: aabb.x, y: aabb.y - circle.radius,
+            width: aabb.width, height: aabb.height + (circle.radius * 2) }
+    ];
+
+    var circles = [
+        { x: aabb.x, y: aabb.y, radius: circle.radius },
+        { x: aabb.x + aabb.width, y: aabb.y, radius: circle.radius },
+        { x: aabb.x + aabb.width, y: aabb.y + aabb.height, radius: circle.radius },
+        { x: aabb.x, y: aabb.y + aabb.height, radius: circle.radius },
+    ];
+
+    var collides = false;
+
+    for (var c = 0; c < circles.length; c++)
+        if (Collisions.circle.contains.point(circles[c], circle)) collides = true;
+
+    for (var i = 0; i < rects.length; i++)
+        if (Collisions.aabb.contains.point(rects[i], circle)) collides = true;
+
+    return collides;
+};
+
+Collisions.aabb.contains.point = function (aabb, point) {
+    return point.x > aabb.x &&
+        point.x < aabb.x + aabb.width &&
+        point.y > aabb.y &&
+        point.y < aabb.y + aabb.height;
+};
+
+function clamp (x, min, max) {
+    return x < min ? min : x > max ? max : x;
+}
+
+function radToDeg (rad) {
+    return rad * (180 / Math.PI);
+}
+
+function degToRad (deg) {
+    return deg * (Math.PI / 180);
+}
+
+var Random = {
+    vector: function (len = 1) {
+        var angle = Math.random(-Math.PI, Math.PI);
+        var vec = radToVec(angle);
+        return {
+            x: vec.x * len,
+            y: vec.y * len
+        };
+    },
+    range: function (min, max) {
+        if (arguments.length == 1) {
+            max = min;
+            min = 0;
+        }
+        return Math.random() * (max - min) + min;
+    },
+    intRange: function (min, max) {
+        if (arguments.length == 1) {
+            max = min;
+            min = 0;
+        }
+        return Math.floor(Math.random() * (max - min) + min);
+    },
+    angle: function (unit = 'deg') {
+        if (unit == 'deg' || unit == 'degrees' || unit == 'd') {
+            return Random.range(0, 360);
+        } else if (unit == 'rad' || unit == 'radians' || unit == 'r') {
+            return Random.range(-Math.PI, Math.PI);
+        } else {
+            throw new Error('You must specify the unit as either d, deg, degrees, r, rad, or radians!');
+        }
+    }
+};
+
 var Stage = function (id = 'canvas', options = {}) {
     check(arguments, 1, 2);
     this.canvas = document.getElementById (id);
@@ -14,13 +124,15 @@ var Stage = function (id = 'canvas', options = {}) {
     this.deltaTime = 0;
     this.fps = 0;
 
-    this.mouse = {
+    this._mouse = {
         x: 0,
         y: 0,
         down: {}
     };
 
     this.keys = {};
+
+    this.translated = {x: 0, y: 0};
 
     this._eventDispatcher = document.createElement('DIV');
     this._tickEvent = new Event('tick');
@@ -43,19 +155,19 @@ var Stage = function (id = 'canvas', options = {}) {
     window.requestAnimationFrame(this._tick.bind(this));
 
     this.canvas.addEventListener('mousemove', (function(evt) {
-        this.mouse = {
+        this._mouse = {
             x: evt.layerX,
             y: evt.layerY,
-            down: this.mouse.down
+            down: this._mouse.down
         };
     }).bind(this));
 
     this.canvas.addEventListener('mousedown', (function(evt) {
-        this.mouse.down[evt.button] = true;
+        this._mouse.down[evt.button] = true;
     }).bind(this));
 
     this.canvas.addEventListener('mouseup', (function(evt) {
-        this.mouse.down[evt.button] = false;
+        this._mouse.down[evt.button] = false;
     }).bind(this));
 
     this.canvas.addEventListener('keydown', (function(evt) {
@@ -100,6 +212,14 @@ Stage.prototype._tick = function () {
     window.requestAnimationFrame(this._tick.bind(this));
 };
 
+Stage.prototype.getMouse = function () {
+    return {
+        x: this._mouse.x - this.translated.x,
+        y: this._mouse.y - this.translated.y,
+        down: this._down
+    };
+};
+
 Stage.prototype.getDimensions = function () {
     return {
         width: this.canvas.width,
@@ -117,6 +237,26 @@ Stage.prototype.clear = function () {
     this.context.resetTransform();
     this.context.clearRect(0, 0, dim.width, dim.height);
     this.context.restore();
+    return this;
+};
+
+Stage.prototype.translate = function (x, y) {
+    check(2, 2, ['number', 'number']);
+    this.context.translate(x, y);
+    this.translated.x += x;
+    this.translated.y += y;
+    return this;
+};
+
+Stage.prototype.translateX = function (dist) {
+    check(1, 1, ['number']);
+    this.translate(dist, 0);
+    return this;
+};
+
+Stage.prototype.translateY = function (dist) {
+    check(1, 1, ['number']);
+    this.translate(0, dist);
     return this;
 };
 
@@ -295,20 +435,16 @@ function validateObject (obj, defObj) {
     return obj;
 }
 
-function clamp (x, min, max) {
-    return x < min ? min : x > max ? max : x;
-}
-
-function radToDeg (rad) {
-    return rad * (180 / Math.PI);
-}
-
-function degToRad (deg) {
-    return deg * (Math.PI / 180);
-}
-
 function vecLength (vec) {
     return Math.sqrt(vec.x * vec.x + vec.y * vec.y);
+}
+
+function dist (a, b) {
+    var dist = {
+        x: Math.abs(a.x - b.x),
+        y: Math.abs(a.y - b.y)
+    };
+    return vecLength(dist);
 }
 
 function normalize (vec) {
@@ -337,37 +473,3 @@ function vecToRad (vec) {
 function vecToDeg (vec) {
     return radToDeg(vecToRad(vec));
 }
-
-var Random = {
-    vector: function (len = 1) {
-        var angle = Math.random(-Math.PI, Math.PI);
-        var vec = radToVec(angle);
-        return {
-            x: vec.x * len,
-            y: vec.y * len
-        };
-    },
-    range: function (min, max) {
-        if (arguments.length == 1) {
-            max = min;
-            min = 0;
-        }
-        return Math.random() * (max - min) + min;
-    },
-    intRange: function (min, max) {
-        if (arguments.length == 1) {
-            max = min;
-            min = 0;
-        }
-        return Math.floor(Math.random() * (max - min) + min);
-    },
-    angle: function (unit = 'deg') {
-        if (unit == 'deg' || unit == 'degrees' || unit == 'd') {
-            return Random.range(0, 360);
-        } else if (unit == 'rad' || unit == 'radians' || unit == 'r') {
-            return Random.range(-Math.PI, Math.PI);
-        } else {
-            throw new Error('You must specify the unit as either d, deg, degrees, r, rad, or radians!');
-        }
-    }
-};

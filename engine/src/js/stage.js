@@ -14,13 +14,15 @@ var Stage = function (id = 'canvas', options = {}) {
     this.deltaTime = 0;
     this.fps = 0;
 
-    this.mouse = {
+    this._mouse = {
         x: 0,
         y: 0,
         down: {}
     };
 
     this.keys = {};
+
+    this.translated = {x: 0, y: 0};
 
     this._eventDispatcher = document.createElement('DIV');
     this._tickEvent = new Event('tick');
@@ -43,19 +45,19 @@ var Stage = function (id = 'canvas', options = {}) {
     window.requestAnimationFrame(this._tick.bind(this));
 
     this.canvas.addEventListener('mousemove', (function(evt) {
-        this.mouse = {
+        this._mouse = {
             x: evt.layerX,
             y: evt.layerY,
-            down: this.mouse.down
+            down: this._mouse.down
         };
     }).bind(this));
 
     this.canvas.addEventListener('mousedown', (function(evt) {
-        this.mouse.down[evt.button] = true;
+        this._mouse.down[evt.button] = true;
     }).bind(this));
 
     this.canvas.addEventListener('mouseup', (function(evt) {
-        this.mouse.down[evt.button] = false;
+        this._mouse.down[evt.button] = false;
     }).bind(this));
 
     this.canvas.addEventListener('keydown', (function(evt) {
@@ -100,6 +102,14 @@ Stage.prototype._tick = function () {
     window.requestAnimationFrame(this._tick.bind(this));
 };
 
+Stage.prototype.getMouse = function () {
+    return {
+        x: this._mouse.x - this.translated.x,
+        y: this._mouse.y - this.translated.y,
+        down: this._down
+    };
+};
+
 Stage.prototype.getDimensions = function () {
     return {
         width: this.canvas.width,
@@ -117,6 +127,26 @@ Stage.prototype.clear = function () {
     this.context.resetTransform();
     this.context.clearRect(0, 0, dim.width, dim.height);
     this.context.restore();
+    return this;
+};
+
+Stage.prototype.translate = function (x, y) {
+    check(2, 2, ['number', 'number']);
+    this.context.translate(x, y);
+    this.translated.x += x;
+    this.translated.y += y;
+    return this;
+};
+
+Stage.prototype.translateX = function (dist) {
+    check(1, 1, ['number']);
+    this.translate(dist, 0);
+    return this;
+};
+
+Stage.prototype.translateY = function (dist) {
+    check(1, 1, ['number']);
+    this.translate(0, dist);
     return this;
 };
 
