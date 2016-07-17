@@ -31,7 +31,8 @@ var Stage = function (id = 'canvas', options = {}) {
     options = validateObject(options, {
         background: 'white',
         focusable: true,
-        focusedOutline: false
+        focusedOutline: false,
+        imageSmoothing: true
     });
 
     this.canvas.style.background = options.background;
@@ -41,6 +42,8 @@ var Stage = function (id = 'canvas', options = {}) {
             this.canvas.style.outline = 0;
         }
     }
+
+    this.context.imageSmoothingEnabled = options.imageSmoothing;
 
     window.requestAnimationFrame(this._tick.bind(this));
 
@@ -288,5 +291,11 @@ Stage.prototype.fill = function (options = {}, shadow = {}) {
 
     this.context.fillStyle = options.style;
     this.context.fill();
+    return this;
+};
+
+Stage.prototype.drawImage = function (image, x, y, width = image.width, height = image.height) {
+    check(3, 5, ['object', 'number', 'number', 'number', 'number']);
+    this.context.drawImage(image, x, y, width, height);
     return this;
 };

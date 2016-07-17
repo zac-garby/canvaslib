@@ -8,6 +8,7 @@ Collisions.aabb = {
     contains: {}
 };
 
+/* Circle Collisions */
 Collisions.circle.circle = function (a, b) {
     var distance = dist(a, b);
     return distance <= a.radius + b.radius;
@@ -22,6 +23,7 @@ Collisions.circle.contains.point = function (circle, point) {
     return distance <= circle.radius;
 };
 
+/* AABB Collisions */
 Collisions.aabb.aabb = function (a, b) {
     return a.x < b.x + b.width &&
         a.x + a.width > b.x &&
@@ -61,6 +63,23 @@ Collisions.aabb.contains.point = function (aabb, point) {
         point.y > aabb.y &&
         point.y < aabb.y + aabb.height;
 };
+
+function loadImages(sources, finishCallback, singleCallback = (img) => undefined) {
+    var images = {};
+    var loadedImages = 0;
+    var numImages = Object.keys(sources).length;
+
+    for (var src in sources) {
+        images[src] = new Image();
+        images[src].onload = function() { // jshint ignore: line
+            singleCallback(images[src]);
+            if (++loadedImages >= numImages) {
+                finishCallback(images);
+            }
+        };
+        images[src].src = sources[src];
+    }
+}
 
 function clamp (x, min, max) {
     return x < min ? min : x > max ? max : x;
@@ -141,7 +160,8 @@ var Stage = function (id = 'canvas', options = {}) {
     options = validateObject(options, {
         background: 'white',
         focusable: true,
-        focusedOutline: false
+        focusedOutline: false,
+        imageSmoothing: true
     });
 
     this.canvas.style.background = options.background;
@@ -151,6 +171,8 @@ var Stage = function (id = 'canvas', options = {}) {
             this.canvas.style.outline = 0;
         }
     }
+
+    this.context.imageSmoothingEnabled = options.imageSmoothing;
 
     window.requestAnimationFrame(this._tick.bind(this));
 
@@ -398,6 +420,12 @@ Stage.prototype.fill = function (options = {}, shadow = {}) {
 
     this.context.fillStyle = options.style;
     this.context.fill();
+    return this;
+};
+
+Stage.prototype.drawImage = function (image, x, y, width = image.width, height = image.height) {
+    check(3, 5, ['object', 'number', 'number', 'number', 'number']);
+    this.context.drawImage(image, x, y, width, height);
     return this;
 };
 
