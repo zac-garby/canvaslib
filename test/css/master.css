@@ -1,0 +1,36 @@
+@import url(https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:400,900,700);
+
+html {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  text-align: center;
+
+  background-color: #fafafa;
+
+  font-family: 'Source Code Pro';
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Source Sans Pro', sans-serif;
+}
+
+h1 {
+  font-size: 300%;
+}
+
+canvas {
+  border: 1px solid #c0c0c0;
+  border-radius: 2px;
+  background-color: white;
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
