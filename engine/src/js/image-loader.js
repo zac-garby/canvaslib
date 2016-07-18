@@ -1,7 +1,9 @@
 function loadImages(sources, finishCallback, singleCallback = (img) => undefined) {
+    check(2, 3, Object, Function, Function);
     var images = {};
     var loadedImages = 0;
     var numImages = Object.keys(sources).length;
+    if (numImages === 0) finishCallback(images);
 
     for (var src in sources) {
         images[src] = new Image();

@@ -28,11 +28,12 @@ var Stage = function (id = 'canvas', options = {}) {
     this._tickEvent = new Event('tick');
     this._lastTick = undefined;
 
-    options = validateObject(options, {
+    this.options = validateObject(options, {
         background: 'white',
         focusable: true,
         focusedOutline: false,
-        imageSmoothing: true
+        imageSmoothing: true,
+        autoRound: true
     });
 
     this.canvas.style.background = options.background;
@@ -73,7 +74,7 @@ var Stage = function (id = 'canvas', options = {}) {
 };
 
 Stage.prototype.addEventListener = function (evt, callback) {
-    check(2, 2, ['string', 'function']);
+    check(2, 2, String, Function);
     if ((['mousedown', 'mousemove', 'mouseup', 'keydown', 'keyup']).indexOf(evt) != -1) {
         this.canvas.addEventListener(evt, callback, false);
     }
@@ -87,7 +88,7 @@ Stage.prototype.on = function (evt, callback) {
 };
 
 Stage.prototype._dispatch = function (evt) {
-    check(1, 1, ['object']);
+    check(1, 1, Object);
     this._eventDispatcher.dispatchEvent(evt);
 };
 
@@ -134,7 +135,7 @@ Stage.prototype.clear = function () {
 };
 
 Stage.prototype.translate = function (x, y) {
-    check(2, 2, ['number', 'number']);
+    check(2, 2, Number, Number);
     this.context.translate(x, y);
     this.translated.x += x;
     this.translated.y += y;
@@ -142,13 +143,13 @@ Stage.prototype.translate = function (x, y) {
 };
 
 Stage.prototype.translateX = function (dist) {
-    check(1, 1, ['number']);
+    check(1, 1, Number);
     this.translate(dist, 0);
     return this;
 };
 
 Stage.prototype.translateY = function (dist) {
-    check(1, 1, ['number']);
+    check(1, 1, Number);
     this.translate(0, dist);
     return this;
 };
@@ -166,7 +167,7 @@ Stage.prototype.closePath = function () {
 };
 
 Stage.prototype.moveTo = function (x, y) {
-    check(2, 2, ['number', 'number']);
+    check(2, 2, Number, Number);
     if (!this.is.pathing) {
         this.beginPath();
     }
@@ -175,7 +176,7 @@ Stage.prototype.moveTo = function (x, y) {
 };
 
 Stage.prototype.lineTo = function (x, y) {
-    check(2, 2, ['number', 'number']);
+    check(2, 2, Number, Number);
     if (!this.is.pathing) {
         this.beginPath();
     }
@@ -184,25 +185,25 @@ Stage.prototype.lineTo = function (x, y) {
 };
 
 Stage.prototype.arc = function (x, y, radius, start, end, counterclockwise = false) {
-    check(5, 6, ['number', 'number', 'number', 'number', 'number', 'boolean']);
+    check(5, 6, Number, Number, Number, Number, Number, Boolean);
     if (!this.is.pathing) {
-        this.beginPath();
+        this.beginPath().moveTo(x, y);
     }
     this.context.arc(x, y, radius, start, end, counterclockwise);
     return this;
 };
 
 Stage.prototype.circle = function (x, y, radius) {
-    check(3, 3, ['number', 'number', 'number']);
+    check(3, 3, Number, Number, Number);
     if (!this.is.pathing) {
-        this.beginPath();
+        this.beginPath().moveTo(x, y);
     }
     this.context.arc(x, y, radius, -Math.PI, Math.PI);
     return this;
 };
 
 Stage.prototype.arcTo = function (x1, y1, x2, y2, radius) {
-    check(5, 5, ['number', 'number', 'number', 'number', 'number']);
+    check(5, 5, Number, Number, Number, Number, Number);
     if (!this.is.pathing) {
         this.beginPath();
     }
@@ -211,7 +212,7 @@ Stage.prototype.arcTo = function (x1, y1, x2, y2, radius) {
 };
 
 Stage.prototype.bezierCurveTo = function (c1x, c1y, c2x, x2y, x, y) {
-    check(6, 6, ['number', 'number', 'number', 'number', 'number', 'number']);
+    check(6, 6, Number, Number, Number, Number, Number, Number);
     if (!this.is.pathing) {
         this.beginPath();
     }
@@ -220,7 +221,7 @@ Stage.prototype.bezierCurveTo = function (c1x, c1y, c2x, x2y, x, y) {
 };
 
 Stage.prototype.quadraticCurveTo = function (cx, cy, x, y) {
-    check(4, 4, ['number', 'number', 'number', 'number']);
+    check(4, 4, Number, Number, Number, Number);
     if (!this.is.pathing) {
         this.beginPath();
     }
@@ -229,16 +230,48 @@ Stage.prototype.quadraticCurveTo = function (cx, cy, x, y) {
 };
 
 Stage.prototype.rect = function (x, y, width, height) {
-    check(4, 4, ['number', 'number', 'number', 'number']);
+    check(4, 4, Number, Number, Number, Number);
     if (!this.is.pathing) {
-        this.beginPath();
+        this.beginPath().moveTo(x, y);
     }
     this.context.rect(x, y, width, height);
     return this;
 };
 
+Stage.prototype.polyline = function (verts) {
+    check(1, 1, Array);
+    if (verts.lenth < 2) {
+        throw new Error('You must have at least 2 vertices!');
+    }
+    if (!this.is.pathing) {
+        this.beginPath();
+    }
+    this.moveTo(verts[0].x, verts[0].y);
+    for (var vert in verts) {
+        if (verts.hasOwnProperty(vert)) {
+            var pos = {x: verts[vert].x, y: verts[vert].y};
+            if (this.options.autoRound) {
+                pos.x = Math.round(pos.x) + 0.5;
+                pos.y = Math.round(pos.y) + 0.5;
+            }
+            this.lineTo(pos.x, pos.y);
+        }
+    }
+    return this;
+};
+
+Stage.prototype.poly = function (verts) {
+    check(1, 1, Array);
+    if (verts.length < 3) {
+        throw new Error('You must have at least 3 vertices!');
+    }
+    this.polyline(verts);
+    this.lineTo(verts[0].x, verts[0].y);
+    return this;
+};
+
 Stage.prototype.stroke = function (options = {}, shadow = {}) {
-    check(0, 1, ['object']);
+    check(0, 2, Object, Object);
 
     options = validateObject(options, {
         style: 'black',
@@ -271,7 +304,7 @@ Stage.prototype.stroke = function (options = {}, shadow = {}) {
 };
 
 Stage.prototype.fill = function (options = {}, shadow = {}) {
-    check(0, 1, ['object']);
+    check(0, 2, Object, Object);
 
     options = validateObject(options, {
         style: 'black'
@@ -295,7 +328,7 @@ Stage.prototype.fill = function (options = {}, shadow = {}) {
 };
 
 Stage.prototype.drawImage = function (image, x, y, width = image.width, height = image.height) {
-    check(3, 5, ['object', 'number', 'number', 'number', 'number']);
+    check(3, 5, Image, Number, Number, Number, Number);
     this.context.drawImage(image, x, y, width, height);
     return this;
 };
