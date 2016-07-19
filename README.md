@@ -29,8 +29,7 @@ function tick() {
 
 function render() {
     stage.clear() // Clear the stage, ready for drawing
-        .drawImage(images.duck, 50, 50) // Draw the image
-        .closePath(); // Close the path
+        .drawImage(images.duck, 50, 50); // Draw the image
 }
 
 ```
