@@ -1,4 +1,4 @@
-var Random = {
+clib.Random = {
     vector: function (len = 1) {
         check(0, 1, Number);
         var angle = Math.random(-Math.PI, Math.PI);

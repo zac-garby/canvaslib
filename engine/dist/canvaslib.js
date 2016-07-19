@@ -1,37 +1,40 @@
-var Collisions = {};
+// Create clib namespace
+clib = clib || {};
 
-Collisions.circle = {
+clib.Collisions = {};
+
+clib.Collisions.circle = {
     contains: {}
 };
 
-Collisions.aabb = {
+clib.Collisions.aabb = {
     contains: {}
 };
 
-/* Circle Collisions */
-Collisions.circle.circle = function (a, b) {
+/* Circle clib.Collisions */
+clib.Collisions.circle.circle = function (a, b) {
     var distance = dist(a, b);
     return distance <= a.radius + b.radius;
 };
 
-Collisions.circle.aabb = function (circle, aabb) {
-    return Collisions.aabb.circle(aabb, circle);
+clib.Collisions.circle.aabb = function (circle, aabb) {
+    return clib.Collisions.aabb.circle(aabb, circle);
 };
 
-Collisions.circle.contains.point = function (circle, point) {
+clib.Collisions.circle.contains.point = function (circle, point) {
     var distance = dist(circle, point);
     return distance <= circle.radius;
 };
 
-/* AABB Collisions */
-Collisions.aabb.aabb = function (a, b) {
+/* AABB clib.Collisions */
+clib.Collisions.aabb.aabb = function (a, b) {
     return a.x < b.x + b.width &&
         a.x + a.width > b.x &&
         a.y < b.y + b.height &&
         a.y + a.height > b.y;
 };
 
-Collisions.aabb.circle = function (aabb, circle) {
+clib.Collisions.aabb.circle = function (aabb, circle) {
     var rects = [
         { x: aabb.x - circle.radius, y: aabb.y,
             width: aabb.width + (circle.radius * 2), height: aabb.height },
@@ -49,22 +52,22 @@ Collisions.aabb.circle = function (aabb, circle) {
     var collides = false;
 
     for (var c = 0; c < circles.length; c++)
-        if (Collisions.circle.contains.point(circles[c], circle)) collides = true;
+        if (clib.Collisions.circle.contains.point(circles[c], circle)) collides = true;
 
     for (var i = 0; i < rects.length; i++)
-        if (Collisions.aabb.contains.point(rects[i], circle)) collides = true;
+        if (clib.Collisions.aabb.contains.point(rects[i], circle)) collides = true;
 
     return collides;
 };
 
-Collisions.aabb.contains.point = function (aabb, point) {
+clib.Collisions.aabb.contains.point = function (aabb, point) {
     return point.x > aabb.x &&
         point.x < aabb.x + aabb.width &&
         point.y > aabb.y &&
         point.y < aabb.y + aabb.height;
 };
 
-function loadImages(sources, finishCallback, singleCallback = (img) => undefined) {
+clib.loadImages = function(sources, finishCallback, singleCallback = (img) => undefined) {
     check(2, 3, Object, Function, Function);
     var images = {};
     var loadedImages = 0;
@@ -83,19 +86,21 @@ function loadImages(sources, finishCallback, singleCallback = (img) => undefined
     }
 }
 
-function clamp (x, min, max) {
+clib.Maths = {};
+
+clib.Maths.clamp = function(x, min, max) {
     return x < min ? min : x > max ? max : x;
-}
+};
 
-function radToDeg (rad) {
+clib.Maths.radToDeg = function(rad) {
     return rad * (180 / Math.PI);
-}
+};
 
-function degToRad (deg) {
+clib.Maths.degToRad = function(deg) {
     return deg * (Math.PI / 180);
-}
+};
 
-var Random = {
+clib.Random = {
     vector: function (len = 1) {
         check(0, 1, Number);
         var angle = Math.random(-Math.PI, Math.PI);
@@ -133,14 +138,14 @@ var Random = {
     }
 };
 
-var Stage = function (id = 'canvas', options = {}) {
+clib.Stage = function(id = 'canvas', options = {}) {
     check(arguments, 1, 2);
-    this.canvas = document.getElementById (id);
+    this.canvas = document.getElementById(id);
     if (this.canvas === null || this.canvas.nodeName != 'CANVAS') {
         throw new Error(`No canvas was found with the id: ${id}!`);
     }
 
-    this.context = this.canvas.getContext ('2d');
+    this.context = this.canvas.getContext('2d');
 
     this.is = {
         pathing: false
@@ -157,7 +162,10 @@ var Stage = function (id = 'canvas', options = {}) {
 
     this.keys = {};
 
-    this.translated = {x: 0, y: 0};
+    this.translated = {
+        x: 0,
+        y: 0
+    };
 
     this._eventDispatcher = document.createElement('DIV');
     this._tickEvent = new Event('tick');
@@ -208,7 +216,7 @@ var Stage = function (id = 'canvas', options = {}) {
     }).bind(this));
 };
 
-Stage.prototype.addEventListener = function (evt, callback) {
+clib.Stage.prototype.addEventListener = function(evt, callback) {
     check(2, 2, String, Function);
     if ((['mousedown', 'mousemove', 'mouseup', 'keydown', 'keyup']).indexOf(evt) != -1) {
         this.canvas.addEventListener(evt, callback, false);
@@ -217,17 +225,17 @@ Stage.prototype.addEventListener = function (evt, callback) {
     return this;
 };
 
-Stage.prototype.on = function (evt, callback) {
+clib.Stage.prototype.on = function(evt, callback) {
     this.addEventListener(evt, callback);
     return this;
 };
 
-Stage.prototype._dispatch = function (evt) {
+clib.Stage.prototype._dispatch = function(evt) {
     check(1, 1, Object);
     this._eventDispatcher.dispatchEvent(evt);
 };
 
-Stage.prototype._tick = function () {
+clib.Stage.prototype._tick = function() {
     if (exists(this._lastTick)) {
         var now = Date.now();
         this.deltaTime = (now - this._lastTick) / 1000;
@@ -241,7 +249,7 @@ Stage.prototype._tick = function () {
     window.requestAnimationFrame(this._tick.bind(this));
 };
 
-Stage.prototype.getMouse = function () {
+clib.Stage.prototype.getMouse = function() {
     return {
         x: this._mouse.x - this.translated.x,
         y: this._mouse.y - this.translated.y,
@@ -249,7 +257,7 @@ Stage.prototype.getMouse = function () {
     };
 };
 
-Stage.prototype.getDimensions = function () {
+clib.Stage.prototype.getDimensions = function() {
     return {
         width: this.canvas.width,
         height: this.canvas.height,
@@ -260,7 +268,7 @@ Stage.prototype.getDimensions = function () {
     };
 };
 
-Stage.prototype.clear = function () {
+clib.Stage.prototype.clear = function() {
     var dim = this.getDimensions();
     this.context.save();
     this.context.resetTransform();
@@ -269,7 +277,7 @@ Stage.prototype.clear = function () {
     return this;
 };
 
-Stage.prototype.translate = function (x, y) {
+clib.Stage.prototype.translate = function(x, y) {
     check(2, 2, Number, Number);
     this.context.translate(x, y);
     this.translated.x += x;
@@ -277,31 +285,31 @@ Stage.prototype.translate = function (x, y) {
     return this;
 };
 
-Stage.prototype.translateX = function (dist) {
+clib.Stage.prototype.translateX = function(dist) {
     check(1, 1, Number);
     this.translate(dist, 0);
     return this;
 };
 
-Stage.prototype.translateY = function (dist) {
+clib.Stage.prototype.translateY = function(dist) {
     check(1, 1, Number);
     this.translate(0, dist);
     return this;
 };
 
-Stage.prototype.beginPath = function () {
+clib.Stage.prototype.beginPath = function() {
     this.context.beginPath();
     this.is.pathing = true;
     return this;
 };
 
-Stage.prototype.closePath = function () {
+clib.Stage.prototype.closePath = function() {
     this.context.closePath();
     this.is.pathing = false;
     return this;
 };
 
-Stage.prototype.moveTo = function (x, y) {
+clib.Stage.prototype.moveTo = function(x, y) {
     check(2, 2, Number, Number);
     if (!this.is.pathing) {
         this.beginPath();
@@ -310,7 +318,7 @@ Stage.prototype.moveTo = function (x, y) {
     return this;
 };
 
-Stage.prototype.lineTo = function (x, y) {
+clib.Stage.prototype.lineTo = function(x, y) {
     check(2, 2, Number, Number);
     if (!this.is.pathing) {
         this.beginPath();
@@ -319,7 +327,7 @@ Stage.prototype.lineTo = function (x, y) {
     return this;
 };
 
-Stage.prototype.arc = function (x, y, radius, start, end, counterclockwise = false) {
+clib.Stage.prototype.arc = function(x, y, radius, start, end, counterclockwise = false) {
     check(5, 6, Number, Number, Number, Number, Number, Boolean);
     if (!this.is.pathing) {
         this.beginPath().moveTo(x, y);
@@ -328,7 +336,7 @@ Stage.prototype.arc = function (x, y, radius, start, end, counterclockwise = fal
     return this;
 };
 
-Stage.prototype.circle = function (x, y, radius) {
+clib.Stage.prototype.circle = function(x, y, radius) {
     check(3, 3, Number, Number, Number);
     if (!this.is.pathing) {
         this.beginPath().moveTo(x, y);
@@ -337,7 +345,7 @@ Stage.prototype.circle = function (x, y, radius) {
     return this;
 };
 
-Stage.prototype.arcTo = function (x1, y1, x2, y2, radius) {
+clib.Stage.prototype.arcTo = function(x1, y1, x2, y2, radius) {
     check(5, 5, Number, Number, Number, Number, Number);
     if (!this.is.pathing) {
         this.beginPath();
@@ -346,7 +354,7 @@ Stage.prototype.arcTo = function (x1, y1, x2, y2, radius) {
     return this;
 };
 
-Stage.prototype.bezierCurveTo = function (c1x, c1y, c2x, x2y, x, y) {
+clib.Stage.prototype.bezierCurveTo = function(c1x, c1y, c2x, x2y, x, y) {
     check(6, 6, Number, Number, Number, Number, Number, Number);
     if (!this.is.pathing) {
         this.beginPath();
@@ -355,7 +363,7 @@ Stage.prototype.bezierCurveTo = function (c1x, c1y, c2x, x2y, x, y) {
     return this;
 };
 
-Stage.prototype.quadraticCurveTo = function (cx, cy, x, y) {
+clib.Stage.prototype.quadraticCurveTo = function(cx, cy, x, y) {
     check(4, 4, Number, Number, Number, Number);
     if (!this.is.pathing) {
         this.beginPath();
@@ -364,7 +372,7 @@ Stage.prototype.quadraticCurveTo = function (cx, cy, x, y) {
     return this;
 };
 
-Stage.prototype.rect = function (x, y, width, height) {
+clib.Stage.prototype.rect = function(x, y, width, height) {
     check(4, 4, Number, Number, Number, Number);
     if (!this.is.pathing) {
         this.beginPath().moveTo(x, y);
@@ -373,7 +381,7 @@ Stage.prototype.rect = function (x, y, width, height) {
     return this;
 };
 
-Stage.prototype.polyline = function (verts) {
+clib.Stage.prototype.polyline = function(verts) {
     check(1, 1, Array);
     if (verts.lenth < 2) {
         throw new Error('You must have at least 2 vertices!');
@@ -384,7 +392,10 @@ Stage.prototype.polyline = function (verts) {
     this.moveTo(verts[0].x, verts[0].y);
     for (var vert in verts) {
         if (verts.hasOwnProperty(vert)) {
-            var pos = {x: verts[vert].x, y: verts[vert].y};
+            var pos = {
+                x: verts[vert].x,
+                y: verts[vert].y
+            };
             if (this.options.autoRound) {
                 pos.x = Math.round(pos.x) + 0.5;
                 pos.y = Math.round(pos.y) + 0.5;
@@ -395,7 +406,7 @@ Stage.prototype.polyline = function (verts) {
     return this;
 };
 
-Stage.prototype.poly = function (verts) {
+clib.Stage.prototype.poly = function(verts) {
     check(1, 1, Array);
     if (verts.length < 3) {
         throw new Error('You must have at least 3 vertices!');
@@ -405,7 +416,7 @@ Stage.prototype.poly = function (verts) {
     return this;
 };
 
-Stage.prototype.stroke = function (options = {}, shadow = {}) {
+clib.Stage.prototype.stroke = function(options = {}, shadow = {}) {
     check(0, 2, Object, Object);
 
     options = validateObject(options, {
@@ -438,7 +449,7 @@ Stage.prototype.stroke = function (options = {}, shadow = {}) {
     return this;
 };
 
-Stage.prototype.fill = function (options = {}, shadow = {}) {
+clib.Stage.prototype.fill = function(options = {}, shadow = {}) {
     check(0, 2, Object, Object);
 
     options = validateObject(options, {
@@ -462,7 +473,7 @@ Stage.prototype.fill = function (options = {}, shadow = {}) {
     return this;
 };
 
-Stage.prototype.drawImage = function (image, x, y, width = image.width, height = image.height) {
+clib.Stage.prototype.drawImage = function(image, x, y, width = image.width, height = image.height) {
     check(3, 5, Image, Number, Number, Number, Number);
     this.context.drawImage(image, x, y, width, height);
     return this;
@@ -566,7 +577,7 @@ function normalizeVec (vec) {
 
 function degToVec (deg) {
     check(1, 1, Number);
-    return radToVec(degToRad(deg));
+    return radToVec(clib.Maths.degToRad(deg));
 }
 
 function radToVec (rad) {
@@ -586,5 +597,5 @@ function vecToRad (vec) {
 function vecToDeg (vec) {
     check(1, 1, Object);
     validateVector(vec, true);
-    return radToDeg(vecToRad(vec));
+    return clib.Maths.radToDeg(vecToRad(vec));
 }

@@ -1,11 +1,13 @@
-function clamp (x, min, max) {
+clib.Maths = {};
+
+clib.Maths.clamp = function(x, min, max) {
     return x < min ? min : x > max ? max : x;
-}
+};
 
-function radToDeg (rad) {
+clib.Maths.radToDeg = function(rad) {
     return rad * (180 / Math.PI);
-}
+};
 
-function degToRad (deg) {
+clib.Maths.degToRad = function(deg) {
     return deg * (Math.PI / 180);
-}
+};

@@ -1,4 +1,4 @@
-function loadImages(sources, finishCallback, singleCallback = (img) => undefined) {
+clib.loadImages = function(sources, finishCallback, singleCallback = (img) => undefined) {
     check(2, 3, Object, Function, Function);
     var images = {};
     var loadedImages = 0;
@@ -15,4 +15,4 @@ function loadImages(sources, finishCallback, singleCallback = (img) => undefined
         };
         images[src].src = sources[src];
     }
-}
+};

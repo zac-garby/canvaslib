@@ -59,7 +59,7 @@ function normalizeVec (vec) {
 
 function degToVec (deg) {
     check(1, 1, Number);
-    return radToVec(degToRad(deg));
+    return radToVec(clib.Maths.degToRad(deg));
 }
 
 function radToVec (rad) {
@@ -79,5 +79,5 @@ function vecToRad (vec) {
 function vecToDeg (vec) {
     check(1, 1, Object);
     validateVector(vec, true);
-    return radToDeg(vecToRad(vec));
+    return clib.Maths.radToDeg(vecToRad(vec));
 }
