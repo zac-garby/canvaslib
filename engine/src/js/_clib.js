@@ -1,2 +1,2 @@
 // Create clib namespace
-clib = clib || {};
+clib = {};

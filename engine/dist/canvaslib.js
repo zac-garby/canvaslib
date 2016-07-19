@@ -1,5 +1,5 @@
 // Create clib namespace
-clib = clib || {};
+clib = {};
 
 clib.Collisions = {};
 
@@ -84,7 +84,7 @@ clib.loadImages = function(sources, finishCallback, singleCallback = (img) => un
         };
         images[src].src = sources[src];
     }
-}
+};
 
 clib.Maths = {};
 

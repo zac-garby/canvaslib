@@ -22,5 +22,5 @@ function tick() {
 }
 
 function render() {
-    
+    stage.clear().circle(450, 300, 50).fill().closePath();
 }
