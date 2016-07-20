@@ -100,6 +100,13 @@ clib.Maths.degToRad = function(deg) {
     return deg * (Math.PI / 180);
 };
 
+clib.Maths.lerp = function(a, b, t, allowExtrapolation = false) {
+    if (!allowExtrapolation) {
+        t = clib.Math.clamp(t, 0, 1);
+    }
+    return a + t * (b - a);
+};
+
 clib.Random = {
     vector: function (len = 1) {
         check(0, 1, Number);
@@ -572,6 +579,13 @@ function normalizeVec (vec) {
     return {
         x: vec.x / len,
         y: vec.y / len
+    };
+}
+
+function lerpVec (vec, targetVec, t) {
+    return {
+        x: clib.Maths.lerp(vec.x, targetVec.x, t),
+        y: clib.Maths.lerp(vec.y, targetVec.y, t)
     };
 }
 

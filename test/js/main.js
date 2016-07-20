@@ -1,6 +1,10 @@
 var stage;
 var images;
 var imageSources = {};
+var pos = {
+    x: 450,
+    y: 300
+};
 
 function load() {
     clib.loadImages(imageSources, function(imgs) { // Load the images
@@ -22,5 +26,5 @@ function tick() {
 }
 
 function render() {
-    stage.clear().circle(450, 300, 50).fill().closePath();
+    stage.clear();
 }

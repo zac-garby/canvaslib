@@ -11,3 +11,10 @@ clib.Maths.radToDeg = function(rad) {
 clib.Maths.degToRad = function(deg) {
     return deg * (Math.PI / 180);
 };
+
+clib.Maths.lerp = function(a, b, t, allowExtrapolation = false) {
+    if (!allowExtrapolation) {
+        t = clib.Math.clamp(t, 0, 1);
+    }
+    return a + t * (b - a);
+};

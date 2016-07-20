@@ -57,6 +57,13 @@ function normalizeVec (vec) {
     };
 }
 
+function lerpVec (vec, targetVec, t) {
+    return {
+        x: clib.Maths.lerp(vec.x, targetVec.x, t),
+        y: clib.Maths.lerp(vec.y, targetVec.y, t)
+    };
+}
+
 function degToVec (deg) {
     check(1, 1, Number);
     return radToVec(clib.Maths.degToRad(deg));

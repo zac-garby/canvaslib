@@ -9,10 +9,20 @@ module.exports = function(grunt) {
                 src: ['engine/src/js/*.js'],
                 dest: 'engine/dist/canvaslib.js'
             }
+        },
+        watch: {
+            scripts: {
+                files: ['engine/src/js/*.js'],
+                tasks: ['concat'],
+                options: {
+                    spawn: false
+                }
+            }
         }
     });
 
     grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-watch');
 
-    grunt.registerTask('default', ['concat']);
+    grunt.registerTask('default', ['concat', 'watch']);
 };
