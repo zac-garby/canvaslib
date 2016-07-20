@@ -1,10 +1,6 @@
 var stage;
 var images;
 var imageSources = {};
-var pos = {
-    x: 450,
-    y: 300
-};
 
 function load() {
     clib.loadImages(imageSources, function(imgs) { // Load the images

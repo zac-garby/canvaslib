@@ -18,7 +18,7 @@ clib.Maths.degToRad = function(deg) {
 clib.Maths.lerp = function(a, b, t, allowExtrapolation = false) {
     check(3, 4, Number, Number, Number, Boolean);
     if (!allowExtrapolation) {
-        t = clib.Math.clamp(t, 0, 1);
+        t = clib.Maths.clamp(t, 0, 1);
     }
     return a + t * (b - a);
 };
