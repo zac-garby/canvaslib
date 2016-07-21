@@ -340,6 +340,7 @@ clib.Stage.prototype.lineTo = function(x, y) {
 
 clib.Stage.prototype.arc = function(x, y, radius, start, end, counterclockwise = false) {
     check(5, 6, Number, Number, Number, Number, Number, Boolean);
+    if (radius < 0) throw new Error('The radius can be no less than 0!');
     if (!this.is.pathing) {
         this.beginPath().moveTo(x, y);
     }
@@ -349,6 +350,7 @@ clib.Stage.prototype.arc = function(x, y, radius, start, end, counterclockwise =
 
 clib.Stage.prototype.circle = function(x, y, radius) {
     check(3, 3, Number, Number, Number);
+    if (radius < 0) throw new Error('The radius can be no less than 0!');
     if (!this.is.pathing) {
         this.beginPath().moveTo(x, y);
     }
@@ -358,6 +360,7 @@ clib.Stage.prototype.circle = function(x, y, radius) {
 
 clib.Stage.prototype.arcTo = function(x1, y1, x2, y2, radius) {
     check(5, 5, Number, Number, Number, Number, Number);
+    if (radius < 0) throw new Error('The radius can be no less than 0!');
     if (!this.is.pathing) {
         this.beginPath();
     }
