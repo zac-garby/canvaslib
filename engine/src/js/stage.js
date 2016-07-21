@@ -31,6 +31,9 @@ clib.Stage = function(id = 'canvas', options = {}) {
     this._tickEvent = new Event('tick');
     this._lastTick = undefined;
 
+    this._scenes = [];
+    this._activeSceneName = undefined;
+
     this.options = validateObject(options, {
         background: 'white',
         focusable: true,
@@ -74,6 +77,68 @@ clib.Stage = function(id = 'canvas', options = {}) {
     this.canvas.addEventListener('keyup', (function(evt) {
         this.keys[evt.keyCode] = false;
     }).bind(this));
+};
+
+clib.Stage.prototype.addScene = function(scene) {
+    check(1, 1, clib.Scene);
+    this._scenes.push(scene);
+    scene.init(this);
+    return this;
+};
+
+clib.Stage.prototype.addScenes = function(...scenes) {
+    check(1, Infinity);
+    for (var scene of scenes) {
+        if (scene.constructor !== clib.Scene) {
+            throw new Error('All the scenes must be of type clib.Scene');
+        }
+    }
+    for (scene of scenes) {
+        this.addScene(scene);
+    }
+    return this;
+};
+
+clib.Stage.prototype.setActiveScene = function(name) {
+    check(1, 1, String);
+    for (var scene of this._scenes) {
+        if (scene.name === name) {
+            this._activeSceneName = scene.name;
+            scene.change(this);
+            requestAnimationFrame(function() { // jshint ignore: line
+                scene.active = true;
+            });
+            break;
+        } else {
+            scene.active = false;
+        }
+    }
+    return this;
+};
+
+clib.Stage.prototype.getActiveScene = function() {
+    for (var scene of this._scenes) {
+        if (scene.name === this._activeSceneName) {
+            return scene;
+        }
+    }
+    return undefined;
+};
+
+clib.Stage.prototype.updateScene = function() {
+    var scene = this.getActiveScene();
+    if (exists(scene)) {
+        scene.update(this, this.deltaTime);
+    }
+    return this;
+};
+
+clib.Stage.prototype.renderScene = function() {
+    var scene = this.getActiveScene();
+    if (exists(scene)) {
+        scene.render(this, this.deltaTime);
+    }
+    return this;
 };
 
 clib.Stage.prototype.addEventListener = function(evt, callback) {
