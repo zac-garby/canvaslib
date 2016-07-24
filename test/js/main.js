@@ -3,29 +3,33 @@ var images;
 var imageSources = {};
 
 var menu = new clib.Scene('menu', {
-    init: function(stage) {
-        stage.on('keydown', (function(evt) {
-            if (this.active && evt.keyCode == 68)
-                stage.setActiveScene('play');
-        }).bind(this));
+    enter: function(stage) {
+        console.log('Entering menu scene');
+    },
+    exit: function(stage) {
+        console.log('Exiting menu scene');
     },
     render: function(stage, dt) {
+        if (stage.keys[68]) stage.setActiveScene('play');
         stage.rect(50, 50, 800, 500).fill().closePath();
     }
 });
 
 var play = new clib.Scene('play', {
     init: function(stage, dt) {
-        stage.on('keydown', (function(evt) {
-            if (this.active && evt.keyCode == 65)
-                stage.setActiveScene('menu');
-        }).bind(this));
         this.x = 0;
+    },
+    enter: function(stage) {
+        console.log('Entering play scene!');
+    },
+    exit: function(stage) {
+        console.log('Exiting play scene!');
     },
     update: function(stage, dt) {
         this.x += 100 * dt;
     },
     render: function(stage, dt) {
+        if (stage.keys[65]) stage.setActiveScene('menu');
         stage.circle(this.x, 300, 100).fill().closePath();
     }
 });

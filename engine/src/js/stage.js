@@ -104,12 +104,12 @@ clib.Stage.prototype.setActiveScene = function(name) {
     for (var scene of this._scenes) {
         if (scene.name === name) {
             this._activeSceneName = scene.name;
-            scene.change(this);
+            scene.enter(this);
             requestAnimationFrame(function() { // jshint ignore: line
                 scene.active = true;
             });
-            break;
         } else {
+            if (scene.active) scene.exit(this);
             scene.active = false;
         }
     }
