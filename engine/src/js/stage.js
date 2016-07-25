@@ -350,7 +350,7 @@ clib.Stage.prototype.strokeText = function(text, x, y, options = {}) {
 
     options = validateObject(options, {
         font: '14px sans-serif',
-        style: 'red',
+        style: 'black',
         align: 'start',
         baseline: 'alphabetic',
         direction: 'inherit'
@@ -370,7 +370,7 @@ clib.Stage.prototype.fillText = function(text, x, y, options = {}) {
 
     options = validateObject(options, {
         font: '14px sans-serif',
-        style: 'red',
+        style: 'black',
         align: 'start',
         baseline: 'alphabetic',
         direction: 'inherit'
