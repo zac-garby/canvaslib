@@ -3,12 +3,6 @@ var images;
 var imageSources = {};
 
 var menu = new clib.Scene('menu', {
-    enter: function(stage) {
-        console.log('Entering menu scene');
-    },
-    exit: function(stage) {
-        console.log('Exiting menu scene');
-    },
     render: function(stage, dt) {
         if (stage.keys[68]) stage.setActiveScene('play');
         stage.rect(50, 50, 800, 500).fill().closePath();
@@ -18,12 +12,6 @@ var menu = new clib.Scene('menu', {
 var play = new clib.Scene('play', {
     init: function(stage, dt) {
         this.x = 0;
-    },
-    enter: function(stage) {
-        console.log('Entering play scene!');
-    },
-    exit: function(stage) {
-        console.log('Exiting play scene!');
     },
     update: function(stage, dt) {
         this.x += 100 * dt;
@@ -44,7 +32,8 @@ function load() {
 function init() {
     stage = new clib.Stage('canvas', {}); // Create the stage
 
-    stage.addScenes(menu, play).setActiveScene('menu');
+    stage.addScenes(menu, play);
+    stage.setActiveScene('menu');
 
     stage.on('tick', function() { // Call 'tick()' every stage update
         tick();
@@ -57,5 +46,6 @@ function tick() {
 }
 
 function render() {
-    stage.clear().renderScene();
+    stage.clear();
+    stage.renderScene();
 }

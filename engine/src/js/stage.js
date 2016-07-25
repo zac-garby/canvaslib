@@ -27,12 +27,12 @@ clib.Stage = function(id = 'canvas', options = {}) {
         y: 0
     };
 
+    this._scenes = [];
+    this._activeSceneName = undefined;
+
     this._eventDispatcher = document.createElement('DIV');
     this._tickEvent = new Event('tick');
     this._lastTick = undefined;
-
-    this._scenes = [];
-    this._activeSceneName = undefined;
 
     this.options = validateObject(options, {
         background: 'white',
@@ -81,6 +81,9 @@ clib.Stage = function(id = 'canvas', options = {}) {
 
 clib.Stage.prototype.addScene = function(scene) {
     check(1, 1, clib.Scene);
+    if (scene.constructor !== clib.Scene) {
+        throw new Error('Your scene isn\'t of the type clib.Scene');
+    }
     this._scenes.push(scene);
     scene.init(this);
     return this;
@@ -105,9 +108,7 @@ clib.Stage.prototype.setActiveScene = function(name) {
         if (scene.name === name) {
             this._activeSceneName = scene.name;
             scene.enter(this);
-            requestAnimationFrame(function() { // jshint ignore: line
-                scene.active = true;
-            });
+            scene.active = true;
         } else {
             if (scene.active) scene.exit(this);
             scene.active = false;
