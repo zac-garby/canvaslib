@@ -345,6 +345,46 @@ clib.Stage.prototype.poly = function(verts) {
     return this;
 };
 
+clib.Stage.prototype.strokeText = function(text, x, y, options = {}) {
+    check(3, 4, String, Number, Number, Object);
+
+    options = validateObject(options, {
+        font: '14px sans-serif',
+        style: 'red',
+        align: 'start',
+        baseline: 'alphabetic',
+        direction: 'inherit'
+    });
+
+    this.context.font = options.font;
+    this.context.strokeStyle = options.style;
+    this.context.textAlign = options.align;
+    this.context.textBaseline = options.baseline;
+    this.context.direction = options.direction;
+
+    this.context.strokeText(text, x, y);
+};
+
+clib.Stage.prototype.fillText = function(text, x, y, options = {}) {
+    check(3, 4, String, Number, Number, Object);
+
+    options = validateObject(options, {
+        font: '14px sans-serif',
+        style: 'red',
+        align: 'start',
+        baseline: 'alphabetic',
+        direction: 'inherit'
+    });
+
+    this.context.font = options.font;
+    this.context.fillStyle = options.style;
+    this.context.textAlign = options.align;
+    this.context.textBaseline = options.baseline;
+    this.context.direction = options.direction;
+
+    this.context.fillText(text, x, y);
+};
+
 clib.Stage.prototype.stroke = function(options = {}, shadow = {}) {
     check(0, 2, Object, Object);
 
