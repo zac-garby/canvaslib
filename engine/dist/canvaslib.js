@@ -11,7 +11,6 @@ clib.Collisions.aabb = {
     contains: {}
 };
 
-/* Circle clib.Collisions */
 clib.Collisions.circle.circle = function (a, b) {
     var distance = dist(a, b);
     return distance <= a.radius + b.radius;
@@ -26,7 +25,6 @@ clib.Collisions.circle.contains.point = function (circle, point) {
     return distance <= circle.radius;
 };
 
-/* AABB clib.Collisions */
 clib.Collisions.aabb.aabb = function (a, b) {
     return a.x < b.x + b.width &&
         a.x + a.width > b.x &&
