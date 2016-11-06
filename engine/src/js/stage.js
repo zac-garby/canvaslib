@@ -77,6 +77,17 @@ clib.Stage = function(id = 'canvas', options = {}) {
     this.canvas.addEventListener('keyup', (function(evt) {
         this.keys[evt.keyCode] = false;
     }).bind(this));
+    
+    if (!this.canvas.style.width)
+        this.canvas.style.width = this.canvas.width + 'px';
+    if (!this.canvas.style.height)
+        this.canvas.style.height = this.canvas.height + 'px';
+
+    var scaleFactor = window.devicePixelRatio;
+    this.canvas.width = Math.ceil(this.canvas.width * scaleFactor);
+    this.canvas.height = Math.ceil(this.canvas.height * scaleFactor);
+    var c = this.canvas.getContext('2d');
+    c.scale(scaleFactor, scaleFactor);
 };
 
 clib.Stage.prototype.addScene = function(scene) {
