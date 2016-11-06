@@ -12,7 +12,7 @@ var imageSources = {
 };
 
 function init() {
-    stage = new Stage('canvas', {}); // Create the stage
+    stage = new clib.Stage('canvas', {}); // Create the stage
 
     loadImages(imageSources, function(imgs) { // Begin loading the images
         images = imgs;
